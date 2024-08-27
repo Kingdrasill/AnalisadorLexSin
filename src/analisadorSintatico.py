@@ -5,7 +5,7 @@ class Sintatico:
         # Inicializa o analisador sintático, carregando a tabela LL(1) da gramática especificada
         self.ll1 = ll1.TableLL1(grammar, start)
 
-    # Metódo principal do analisador léxico, testa se a lista de tokens está sintaicamente correta
+    # Método principal do analisador léxico, testa se a lista de tokens está sintaicamente correta
     def testaTokens(self, tokens):
         # Cria uma cópia da lista de tokens e adiciona o marcador de fim da entrada ('$')
         input_data = tokens.tokens.copy()

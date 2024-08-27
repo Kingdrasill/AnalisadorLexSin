@@ -85,7 +85,7 @@ class TableLL1:
                         terminals.add(symbol)
         return terminals
 
-    # Metódo para gerar todos os conjuntos First
+    # Método para gerar todos os conjuntos First
     def ConjuntosFirst(self, grammar):
         # Gera todos os conjuntos FIRST como vazios para todos não terminais da gramática
         first_sets = {non_terminal: set() for non_terminal in self.nts}
@@ -138,42 +138,35 @@ class TableLL1:
         # Retorna todos os conjuntos First 
         return first_sets
     
-    # Metódo para gerar todos os conjuntos FOllow
+    # Método para gerar todos os conjuntos FOllow
     def ConjuntosFollow(self, grammar, start_symbol, first_sets):
         # Inicializa para todos não teminais o conjunto Follow como vazio 
         follow = defaultdict(set)
-        
         # Adiciona o $ para o conjunto Follow do símbolo inicial
         follow[start_symbol].add('$')
-
         # Função recursiva interna para fazer a busca recursiva do Follow de um símbolo
         def follow_of(symbol):
             # Certifica que o símbolo tem um conjunto Follow
             if symbol not in follow:
                 follow[symbol] = set()
-
             # Para cada não terminal na gramática
             for nt in self.nts:
                 # Para cada produção do não terminal
                 for production in grammar[nt]:
                     # Separa os símbolos da produção
                     symbols = production.split()
-                    
                     # Conferi se o símbolo atual está na produção do não terminal
                     if symbol in symbols:
                         # Começa a verificar os símbolos após o símbolo atual
                         follow_pos = symbols.index(symbol) + 1
-                        
                         # Enquanto o símbolo checado não depois  do último
                         while follow_pos < len(symbols):
                             # Guarda o próximo símbolo
                             next_symbol = symbols[follow_pos]
-                            
                             # Se o próximo símbolo for um não terminal
                             if next_symbol in self.nts:
                                 # Adiciona o First do próximo símbolo no Follow do símbolo atual, excluindo o ε
                                 follow[symbol] |= first_sets[next_symbol] - {'ε'}
-                                
                                 # Se o First do próximo símbolo não contém o ε, sai do loop
                                 if 'ε' not in first_sets[next_symbol]:
                                     break
@@ -183,35 +176,27 @@ class TableLL1:
                                 follow[symbol].add(next_symbol)
                                 # Sai do loop
                                 break
-                            
                             # Vai para o próximo símbolo da produção
                             follow_pos += 1
-                        
                         # Se chegou ao final da produção ou todos os símbolos restantes derivão em ε
                         if follow_pos == len(symbols):
                             # Evita dependências própias (não adicionar o conjunto Follow do símbolo atual em si mesmo)
                             if nt != symbol:
                                 # Adiciona o Follow do não terminal ao Follow do símbolo atual
                                 follow[symbol] |= follow_of(nt)
-            
             # Retorna o conjunto Follow do símbolo atual
             return follow[symbol]
-
         # Para todos os não terminais gera os conjuntos Follow
         for non_terminal in grammar:
             follow_of(non_terminal)
-
         # Retorna todos os conjuntos Follow
         return dict(follow)
 
-    # Metódo para gerar a tabela de análise
+    # Método para gerar a tabela de análise
     def GerarTabelaLL1(self, grammar, first_sets, follow_sets):
-        # Constrói a tabela de análise LL(1) a partir da gramática, dos conjuntos FIRST e FOLLOW
-
         # Adiciona o marcador de fim de entrada aos terminais
         terminals = self.ts | {'$'}
         non_terminals = self.nts
-
         # Começa a tabela com todas posições valendo '-'
         parsing_table = {nt: {t: '-' for t in terminals} for nt in non_terminals}
 
